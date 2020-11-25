@@ -3,6 +3,7 @@
 #include <array>
 #include <cmath>
 #include <random>
+#include <fstream>
 
 struct Predator{
   double x = 0;
@@ -73,12 +74,12 @@ class Simulation{
     pred.attack_rates[0] = 
         max_attack_rate * exp(-1 * ( ((-1 - pred.a) * (-1 - pred.a)) / 2 * a_var * a_var)); 
     pred.attack_rates[1] = 
-        max_attack_rate * exp(-1 * ( ((1 - pred.a) * (1 - pred.a)) / 2 * a_var * a_var)); 
+        max_attack_rate * exp(-1 * ( ((1 - pred.b) * (1 - pred.b)) / 2 * a_var * a_var)); 
     // Handling times
     pred.handling_times[0] = 
       min_handling_time + 1 - exp(-1 * ( ((-1 - pred.a) * (-1 - pred.a)) / 2 * a_std)); 
     pred.handling_times[1] = 
-      min_handling_time + 1 - exp(-1 * ( ((1 - pred.a) * (1 - pred.a)) / 2 * h_std)); 
+      min_handling_time + 1 - exp(-1 * ( ((1 - pred.b) * (1 - pred.b)) / 2 * h_std)); 
     // Functional responses
     pred.functional_responses[0] = 
       (pred.attack_rates[0] * cur_n_1) / (1 + pred.attack_rates[0] * pred.handling_times[0] * cur_n_1);  
@@ -124,6 +125,8 @@ class Simulation{
 
   void Run(){
     Initialize();
+    std::ofstream fp_pop_size;
+    fp_pop_size.open("pop_sizes.csv");
     // Create variables that will be reused throughout main loop
     double total_birth_prey_1;
     double total_birth_prey_2;
@@ -133,13 +136,13 @@ class Simulation{
     double total_death_pred;
     double total_sum;
     double p;
-    std::cout << "name,count,time" << std::endl;
+    fp_pop_size << "name,count,time" << std::endl;
     size_t update = 0;
     while(time_elapsed < time_max){
       if(update % 50 == 0){
-        std::cout << "predator," << pred_vec.size() << "," << time_elapsed << std::endl; 
-        std::cout << "prey1," << cur_n_1 << "," << time_elapsed << std::endl; 
-        std::cout << "prey2," << cur_n_2 << "," << time_elapsed << std::endl; 
+        fp_pop_size << "predator," << pred_vec.size() << "," << time_elapsed << std::endl
+                    << "prey1," << cur_n_1 << "," << time_elapsed << std::endl 
+                    << "prey2," << cur_n_2 << "," << time_elapsed << std::endl; 
       }
       update++;
       //std::cout << time_elapsed << std::endl;
@@ -211,6 +214,15 @@ class Simulation{
         pred_vec.erase(pred_vec.begin() + idx);
       }
     }
+    fp_pop_size.close();
+    std::ofstream fp_pred_genotypes;
+    fp_pred_genotypes.open("final_pred_genotypes.csv");
+    fp_pred_genotypes << "idx, x, y" << std::endl; 
+    for(size_t pred_idx = 0; pred_idx < pred_vec.size(); ++pred_idx){
+      fp_pred_genotypes << pred_idx << "," << pred_vec[pred_idx].x << "," << pred_vec[pred_idx].y 
+          << std::endl;
+    }
+    fp_pred_genotypes.close();
   } 
 
 };
