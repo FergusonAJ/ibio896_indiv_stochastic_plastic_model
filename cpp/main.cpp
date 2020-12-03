@@ -64,6 +64,7 @@ class Simulation{
   size_t cur_n_2;
   double time_elapsed = 0;
   double time_max = 10000;
+  std::string file_prefix;
 
   protected:
 
@@ -125,7 +126,7 @@ class Simulation{
   void Run(){
     Initialize();
     std::ofstream fp_pop_size;
-    fp_pop_size.open("pop_sizes.csv");
+    fp_pop_size.open(file_prefix + "pop_sizes.csv");
     // Create variables that will be reused throughout main loop
     double total_birth_prey_1;
     double total_birth_prey_2;
@@ -216,7 +217,7 @@ class Simulation{
     }
     fp_pop_size.close();
     std::ofstream fp_pred_genotypes;
-    fp_pred_genotypes.open("final_pred_genotypes.csv");
+    fp_pred_genotypes.open(file_prefix + "final_pred_genotypes.csv");
     fp_pred_genotypes << "idx, x, y" << std::endl; 
     for(size_t pred_idx = 0; pred_idx < pred_vec.size(); ++pred_idx){
       fp_pred_genotypes << pred_idx << "," << pred_vec[pred_idx].x << "," << pred_vec[pred_idx].y 
@@ -225,10 +226,129 @@ class Simulation{
     fp_pred_genotypes.close();
   } 
 
+  void Reseed(size_t seed){
+    rand.seed(seed);
+  }
+
 };
 
-int main(){
+void PrintHelp(){
+  std::cout << "Thanks for using the StochasticPlastic simulation!" << std::endl;
+  std::cout << "Here are the possible command line arguments:" << std::endl;
+  std::cout << "\t-h    Shows this help screen " << std::endl;
+  std::cout << "\t-m <double>    Sets the predator mortality rate" << std::endl;
+  std::cout << "\t-k <double>    Sets the cost of plasticity" << std::endl;
+  std::cout << "\t-s <double>    Sets the predator habitat sensitivity" << std::endl;
+  std::cout << "\t-p <int>    Sets the initial size of the predator population" << std::endl;
+  std::cout << "\t-n1 <int>    Sets the initial size of the prey 1 population" << std::endl;
+  std::cout << "\t-n2 <int>    Sets the initial size of the prey 2 population" << std::endl;
+  std::cout << "\t-t <double>    Sets the time simulation will run" << std::endl;
+  std::cout << "\t-r <int>    Sets the random seed" << std::endl;
+  std::cout << "\t-f <string>    Sets the filename prefix. Should end in /" << std::endl;
+}
+
+int main(int argc, char * argv[]){
+  // Setup simulation
   Simulation sim(time(NULL));
+  // Interpret command line arguments
+  bool skip = false;
+  for(size_t arg_idx = 1; arg_idx < argc; arg_idx++){
+    if(skip){
+      skip = false;
+      continue;
+    }
+    std::string arg_str(argv[arg_idx]);
+    if(arg_str == "-h"){ 
+      PrintHelp();
+      exit(0);
+    }
+    else if(arg_str == "-m"){  // Predator mortality
+      skip = true;
+      if(arg_idx == argc - 1){
+        std::cerr << "Error! Expected a double after -m!" << std::endl;
+        exit(1);
+      }
+      double mortality = std::stod(argv[arg_idx+1]); 
+      sim.death_pred  = mortality; 
+    }
+    else if(arg_str == "-k"){  // Plasticity cost
+      skip = true;
+      if(arg_idx == argc - 1){
+        std::cerr << "Error! Expected a double after -k!" << std::endl;
+        exit(1);
+      }
+      double cost = std::stod(argv[arg_idx+1]); 
+      sim.plastic_cost  = cost; 
+    }
+    else if(arg_str == "-s"){  // Habitat sensitivity
+      skip = true;
+      if(arg_idx == argc - 1){
+        std::cerr << "Error! Expected a double after -s!" << std::endl;
+        exit(1);
+      }
+      double sensitivity = std::stod(argv[arg_idx+1]); 
+      sim.habitat_sensitivity = sensitivity; 
+    }
+    else if(arg_str == "-p"){  // Initial predator count
+      skip = true;
+      if(arg_idx == argc - 1){
+        std::cerr << "Error! Expected an int after -p!" << std::endl;
+        exit(1);
+      }
+      int num_pred = std::stoi(argv[arg_idx+1]); 
+      sim.init_n_pred = num_pred; 
+    }
+    else if(arg_str == "-n1"){ // Initial prey 1 count
+      skip = true;
+      if(arg_idx == argc - 1){
+        std::cerr << "Error! Expected an int after -n1!" << std::endl;
+        exit(1);
+      }
+      int num_1 = std::stoi(argv[arg_idx+1]); 
+      sim.init_n_1 = num_1; 
+    }
+    else if(arg_str == "-n2"){ // Initial prey 2 count
+      skip = true;
+      if(arg_idx == argc - 1){
+        std::cerr << "Error! Expected an int after -n2!" << std::endl;
+        exit(1);
+      }
+      int num_2 = std::stoi(argv[arg_idx+1]); 
+      sim.init_n_2 = num_2; 
+    }
+    else if(arg_str == "-t"){  // Maximum time 
+      skip = true;
+      if(arg_idx == argc - 1){
+        std::cerr << "Error! Expected a double after -t!" << std::endl;
+        exit(1);
+      }
+      double time = std::stod(argv[arg_idx+1]); 
+      sim.time_max = time; 
+    }
+    else if(arg_str == "-r"){  // Random seed
+      skip = true;
+      if(arg_idx == argc - 1){
+        std::cerr << "Error! Expected an int after -r!" << std::endl;
+        exit(1);
+      }
+      int seed = std::stoi(argv[arg_idx+1]); 
+      sim.Reseed(seed); 
+    }
+    else if(arg_str == "-f"){  // Random seed
+      skip = true;
+      if(arg_idx == argc - 1){
+        std::cerr << "Error! Expected a string after -f!" << std::endl;
+        exit(1);
+      }
+      std::string prefix(argv[arg_idx+1]); 
+      sim.file_prefix = prefix; 
+    }
+    else{
+      std::cout << "Unknown command line argument: " << arg_str << std::endl;
+      exit(1);
+    }
+  }
+  // Run
   sim.Run();
   return 0;
 }
