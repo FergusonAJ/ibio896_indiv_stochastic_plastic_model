@@ -31,10 +31,9 @@ struct Predator{
 class Simulation{
   protected:
   // General variables
-  size_t n_1;
-  size_t n_2;
   std::vector<Predator> pred_vec;
   std::default_random_engine rand;
+
   // Constants
   const double growth_prey = 0.9;         // r_i = Intrinsic growth rate of both prey pops
   const double birth_prey = 1.0;          // b_i = Per-capita birth rate of both prey pops
@@ -66,6 +65,7 @@ class Simulation{
   double time_max = 10000;
   size_t random_seed;
   std::string file_prefix;
+  double print_step = 1;
 
   protected:
 
@@ -123,6 +123,7 @@ class Simulation{
     std::cout << "Amount of time to simulate: " << time_max << std::endl;
     std::cout << "Random seed: " << random_seed << std::endl;
     std::cout << "File prefix: " << file_prefix << std::endl;
+    std::cout << "Print step: " << print_step << std::endl;
   }
 
   void Initialize(){
@@ -152,11 +153,13 @@ class Simulation{
     double p;
     fp_pop_size << "name,count,time" << std::endl;
     size_t update = 0;
+    double next_print_time = 0;
     while(time_elapsed < time_max){
-      if(update % 100 == 0){
+      if(time_elapsed >= next_print_time){
         fp_pop_size << "predator," << pred_vec.size() << "," << time_elapsed << std::endl
                     << "prey1," << cur_n_1 << "," << time_elapsed << std::endl 
                     << "prey2," << cur_n_2 << "," << time_elapsed << std::endl; 
+        next_print_time +=  print_step;
       }
       update++;
       //std::cout << time_elapsed << std::endl;
@@ -260,6 +263,7 @@ void PrintHelp(){
   std::cout << "\t-t <double>    Sets the time simulation will run" << std::endl;
   std::cout << "\t-r <int>    Sets the random seed" << std::endl;
   std::cout << "\t-f <string>    Sets the filename prefix. Should end in /" << std::endl;
+  std::cout << "\t-c <double>    Sets how often (in time) we save off pop sizes" << std::endl;
 }
 
 int main(int argc, char * argv[]){
@@ -357,6 +361,15 @@ int main(int argc, char * argv[]){
       }
       std::string prefix(argv[arg_idx+1]); 
       sim.file_prefix = prefix; 
+    }
+    else if(arg_str == "-c"){  // Maximum time 
+      skip = true;
+      if(arg_idx == argc - 1){
+        std::cerr << "Error! Expected a double after -c!" << std::endl;
+        exit(1);
+      }
+      double step = std::stod(argv[arg_idx+1]); 
+      sim.print_step = step; 
     }
     else{
       std::cout << "Unknown command line argument: " << arg_str << std::endl;
