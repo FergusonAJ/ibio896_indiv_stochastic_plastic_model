@@ -1,14 +1,30 @@
 rm(list = ls())
 library(ggplot2)
 
-setwd('~/documents/school/cur_fa20/pop_comm/ibio896_indiv_stochastic_plastic_model/cpp/')
-data = read.csv('final_pred_genotypes.csv')
+args <- commandArgs(trailingOnly = TRUE)
+if(length(args) < 2){
+  print('Error! We expect two command line arguments: the directory to find the data and the directory to output the plot')
+  quit()
+}
+in_dir = args[1]
+out_dir = args[2]
+
+if(substr(in_dir, nchar(in_dir), nchar(in_dir)) != '/'){
+  in_dir = paste0(in_dir, '/')
+}
+if(substr(out_dir, nchar(out_dir), nchar(out_dir)) != '/'){
+  out_dir = paste0(out_dir, '/')
+}
+print(paste('Loading final_pred_genotypes.csv from', in_dir))
+
+data = read.csv(paste0(in_dir, 'final_pred_genotypes.csv'))
 
 x_min = min(min(data$x), -1)
 x_max = max(max(data$x), 1)
 y_min = min(min(data$y), 0)
 y_max = max(max(data$y), 1)
 text_size = 14
+print(paste('Saving final_predaotor_distribution.png in', out_dir))
 ggplot(data, aes(x = x, y = y)) + 
   #geom_point(alpha = 0.1) + 
   scale_x_continuous(limits = c(x_min, x_max), expand = c(0,0)) + 
@@ -28,6 +44,6 @@ ggplot(data, aes(x = x, y = y)) +
     legend.text = element_text(size = text_size), 
     legend.title = element_text(size = text_size)
   ) +
-  ggsave('~/documents/school/cur_fa20/pop_comm/ibio896_indiv_stochastic_plastic_model/analysis/plots/final_predator_distribution.png', 
+  ggsave(paste0(out_dir, 'final_predator_distribution.png'), 
          width = 8, height = 6, units = 'in')
-  
+print('Done!')

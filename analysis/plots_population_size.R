@@ -1,8 +1,23 @@
 rm(list = ls())
 library(ggplot2)
 
-setwd('~/documents/school/cur_fa20/pop_comm/ibio896_indiv_stochastic_plastic_model/cpp/')
-data = read.csv('pop_sizes.csv')
+args <- commandArgs(trailingOnly = TRUE)
+if(length(args) < 2){
+  print('Error! We expect two command line arguments: the directory to find the data and the directory to output the plot')
+  quit()
+}
+in_dir = args[1]
+out_dir = args[2]
+
+if(substr(in_dir, nchar(in_dir), nchar(in_dir)) != '/'){
+  in_dir = paste0(in_dir, '/')
+}
+if(substr(out_dir, nchar(out_dir), nchar(out_dir)) != '/'){
+  out_dir = paste0(out_dir, '/')
+}
+
+print(paste('Loading pop_sizes.csv from', in_dir))
+data = read.csv(paste0(in_dir, 'pop_sizes.csv'))
 data$name_str = 'Predator'
 data[data$name == 'prey1',]$name_str = 'Prey 1'
 data[data$name == 'prey2',]$name_str = 'Prey 2'
@@ -13,6 +28,7 @@ color_prey_1 = '#1f78b4'
 color_prey_2 = '#a6cee3'
 max_time_val = max(data$time)
 
+print(paste('Saving pop_sizes.png in', out_dir))
 ggplot(data, aes(x = time, y = count)) + 
   geom_hline(yintercept = 2333, linetype = 'dashed', alpha = 0.5) +
   annotate(geom = 'text', x = (9/10) * max_time_val, y = 2333 + 50, label = "Prey carrying capacity", alpha = 0.5, size = (5/14) * text_size) +
@@ -27,6 +43,7 @@ ggplot(data, aes(x = time, y = count)) +
     legend.text = element_text(size = text_size),
     legend.title = element_blank()
   ) + 
-  ggsave('~/documents/school/cur_fa20/pop_comm/ibio896_indiv_stochastic_plastic_model/analysis/plots/pop_sizes.png', 
+  ggsave(paste0(out_dir, 'pop_sizes.png'), 
          width = 20, height = 6, units = 'in')
+print('Done!')
 
