@@ -64,6 +64,7 @@ class Simulation{
   size_t cur_n_2;
   double time_elapsed = 0;
   double time_max = 10000;
+  size_t random_seed;
   std::string file_prefix;
 
   protected:
@@ -112,15 +113,28 @@ class Simulation{
     }
   }
 
+  void PrintSettings(){
+    std::cout << "Predator mortality: " << death_pred << std::endl;
+    std::cout << "Cost of plasticity: " << plastic_cost << std::endl;
+    std::cout << "Habitat sensitivity: " << habitat_sensitivity << std::endl;
+    std::cout << "Prey 1 initial pop size: " << init_n_1 << std::endl;
+    std::cout << "Prey 2 initial pop size: " << init_n_2 << std::endl;
+    std::cout << "Predator initial pop size: " << init_n_pred << std::endl;
+    std::cout << "Amount of time to simulate: " << time_max << std::endl;
+    std::cout << "Random seed: " << random_seed << std::endl;
+    std::cout << "File prefix: " << file_prefix << std::endl;
+  }
+
   void Initialize(){
     cur_n_1 = init_n_1;
     cur_n_2 = init_n_2;
     FillPredatorPop(init_n_pred); 
     time_elapsed = 0;
+    PrintSettings();
   }
 
   public:
-  Simulation(size_t seed) : rand(seed){
+  Simulation(size_t seed) : rand(seed), random_seed(seed){
   }
 
   void Run(){
@@ -228,6 +242,7 @@ class Simulation{
 
   void Reseed(size_t seed){
     rand.seed(seed);
+    random_seed = seed;
   }
 
 };
