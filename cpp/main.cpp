@@ -308,7 +308,6 @@ int main(int argc, char * argv[]){
         exit(1);
       }
       double cap = std::stod(argv[arg_idx+1]); 
-      sim.plastic_cost  = cap; 
       sim.carrying_cap_prey = cap; 
     }
     else if(arg_str == "-s"){  // Habitat sensitivity
