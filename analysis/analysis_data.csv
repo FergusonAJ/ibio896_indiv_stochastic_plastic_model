@@ -1,0 +1,3 @@
+cond_id, experiment, k, m,    s,  seed_min, seed_max
+1,       "fig_3",    0, 0.22, 10, 10000,    10099
+2,       "fig_3",    0, 0.3,  10, 10100,    10199
