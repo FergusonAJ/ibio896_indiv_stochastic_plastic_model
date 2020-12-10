@@ -38,7 +38,6 @@ class Simulation{
   const double growth_prey = 0.9;         // r_i = Intrinsic growth rate of both prey pops
   const double birth_prey = 1.0;          // b_i = Per-capita birth rate of both prey pops
   const double death_prey = 0.1;          // d_i = Per-capita death rate of both prey pops
-  const double carrying_cap_prey = 2333;  // k_i = Carrying capacity of both prey pops
   const double max_attack_rate = 0.004;   // a_hat_i = Maximal attack rate of predator on prey i
   const double min_handling_time = 0.4;   // h_hat_i = Minimal handling time of prey i by predator
   const double max_conv_eff_prey_1 = 0.6; // c_hat_1 = Predator's maximal conversion efficeny of prey 1
@@ -56,6 +55,7 @@ class Simulation{
   double death_pred = 0.22;         // m = Per-capita death rate for predators
   double plastic_cost = 0.1;        // k = Scaling factor for the cost of plasticity
   double habitat_sensitivity = 10;  // s = Habitat sensitivity
+  double carrying_cap_prey = 2333;  // k_i = Carrying capacity of both prey pops
   size_t init_n_1 = 500;
   size_t init_n_2 = 500;
   size_t init_n_pred = 500;
@@ -117,6 +117,7 @@ class Simulation{
     std::cout << "Predator mortality: " << death_pred << std::endl;
     std::cout << "Cost of plasticity: " << plastic_cost << std::endl;
     std::cout << "Habitat sensitivity: " << habitat_sensitivity << std::endl;
+    std::cout << "Prey carrying capacity: " << carrying_cap_prey << std::endl;
     std::cout << "Prey 1 initial pop size: " << init_n_1 << std::endl;
     std::cout << "Prey 2 initial pop size: " << init_n_2 << std::endl;
     std::cout << "Predator initial pop size: " << init_n_pred << std::endl;
@@ -256,6 +257,7 @@ void PrintHelp(){
   std::cout << "\t-h    Shows this help screen " << std::endl;
   std::cout << "\t-m <double>    Sets the predator mortality rate" << std::endl;
   std::cout << "\t-k <double>    Sets the cost of plasticity" << std::endl;
+  std::cout << "\t-K <double>    Sets the prey carrying capacity" << std::endl;
   std::cout << "\t-s <double>    Sets the predator habitat sensitivity" << std::endl;
   std::cout << "\t-p <int>    Sets the initial size of the predator population" << std::endl;
   std::cout << "\t-n1 <int>    Sets the initial size of the prey 1 population" << std::endl;
@@ -298,6 +300,16 @@ int main(int argc, char * argv[]){
       }
       double cost = std::stod(argv[arg_idx+1]); 
       sim.plastic_cost  = cost; 
+    }
+    else if(arg_str == "-K"){  // Carrying capacity
+      skip = true;
+      if(arg_idx == argc - 1){
+        std::cerr << "Error! Expected a double after -K!" << std::endl;
+        exit(1);
+      }
+      double cap = std::stod(argv[arg_idx+1]); 
+      sim.plastic_cost  = cap; 
+      sim.carrying_cap_prey = cap; 
     }
     else if(arg_str == "-s"){  // Habitat sensitivity
       skip = true;
